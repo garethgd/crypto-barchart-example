@@ -14,7 +14,6 @@ export interface CoinInfo {
     SortOrder: string;
     EUR?: number;
     USD?: number;
- 
 }
 
 

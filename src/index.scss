@@ -1,0 +1,37 @@
+.barchart{
+  &.panel{
+      min-width:490px;
+      width:100%;
+
+  }
+  
+  .loader {
+      text-align: center;
+      margin-top: 45%;
+      > div{
+        margin: 0 auto;
+      }
+    }
+label.pt-label {
+      margin: 1 0 20px;
+      widtH: 50%;
+      padding-right:5px;
+      display: inline-block;
+      text-align: left;
+      font-weight: 400;
+      color: white;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+
+      @media only screen and (max-width: 600px) {
+          width:100%;
+       }
+  }
+
+  @media only screen and (max-width: 600px) {
+     &.panel {
+      padding: 15px;
+     }
+   }
+}

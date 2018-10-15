@@ -1,28 +1,45 @@
-.App {
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+html {
+  height: 100%;
+  background: #331d1d;
+  font-family: 'Roboto', sans-serif;
+}
+
+h2 {
+  color:white;
+}
+
+.barchart.panel {
+  min-width: 490px;
+  width: 100%;
+}
+.barchart .loader {
   text-align: center;
+  margin-top: 10%;
 }
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.barchart .loader > div {
+  margin: 0 auto;
 }
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
+.barchart label.pt-label {
+  margin: 1 0 20px;
+  widtH: 50%;
+  padding-right: 5px;
+  display: inline-block;
+  text-align: left;
+  font-weight: 400;
   color: white;
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
-
-.App-title {
-  font-size: 1.5em;
+@media only screen and (max-width: 600px) {
+  .barchart label.pt-label {
+    width: 100%;
+  }
 }
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@media only screen and (max-width: 600px) {
+  .barchart.panel {
+    padding: 15px;
+  }
 }
