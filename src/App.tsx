@@ -8,6 +8,7 @@ import axios from 'axios';
 export type State = {
   loading: { barChart?: boolean; lineChart?: boolean };
   coinTypes: CoinInfo[];
+  data: any;
   barChartData: CoinPrice[];
   barChartFilters: { coinToCompare: CoinInfo[] };
 };
@@ -15,14 +16,32 @@ export type State = {
 export type Props = {};
 
 class App extends React.Component<Props, State> {
+  private eventSource: EventSource;
   constructor(props: Props) {
     super(props);
+    this.eventSource = new EventSource("http://localhost:5000/events");
     this.state = {
+      data: [],
       barChartData: [],
       barChartFilters: { coinToCompare: [] },
       coinTypes: [],
       loading: { barChart: true, lineChart: true },
     };
+  }
+
+  componentDidMount() {
+    this.eventSource.onmessage = e =>
+      this.updateFlightState(JSON.parse(e.data));
+  }
+
+  updateFlightState(coins: any) {
+   let coinsArray: CoinInfo[] = [];
+
+    Object.keys(coins.Data).forEach(function(key) {
+      coinsArray.push(coins.Data[key]);
+    });
+    
+    this.setState(Object.assign({}, { data: coinsArray }));
   }
 
   componentWillMount() {
