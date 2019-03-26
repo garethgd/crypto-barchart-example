@@ -2,17 +2,21 @@
 
 const http = require("http");
 const https = require("https");
+var url = require('url');
 
-
-
-
-async function getCoins(){
+async function getCoins(coin){
+    
     return new Promise(function(resolve, reject) {
-
-    https.get('https://www.cryptocompare.com/api/data/coinlist/', (res) => {
+        https.get(
+            `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`, (res) => {
     const { statusCode } = res;
     const contentType = res.headers['content-type'];
-    console.log(res)
+    res.headers = {
+        "Content-Type": "text/event-stream",
+         Connection: "keep-alive",
+        "Cache-Control": "no-cache",
+        "Access-Control-Allow-Origin": "*"
+    }
     let error;
     if (statusCode !== 200) {
       error = new Error('Request Failed.\n' +
@@ -54,7 +58,10 @@ async function getCoins(){
 http
   .createServer((request, response) => {
     console.log("Requested url: " + request.url);
-    if (request.url.toLowerCase() === "/events") {
+    var url_parts = url.parse(request.url, true);
+    var query = url_parts.query.coin
+    console.log(query);
+    if (request.url.toLowerCase().includes("/coins" )) {
         response.writeHead(200, {
             Connection: "keep-alive",
             "Content-Type": "text/event-stream",
@@ -62,13 +69,16 @@ http
             "Access-Control-Allow-Origin": "*"
           });
 
-        setTimeout(() => {
-            const coins = getCoins().then(res => {
+        setInterval(() => {
+            const coins = getCoins(query).then(res => {
+                console.log('hup');
+                //Coin data check
+                response.write("event: flightStateUpdate\n");
                 response.write(`data: ${JSON.stringify(res)}`);
                 response.write("\n\n");
         })
            
-          }, 3000);
+          }, 10000);
      
 
     } else {
