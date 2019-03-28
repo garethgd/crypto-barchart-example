@@ -6,40 +6,42 @@ html {
 }
 
 h2 {
-  color:white;
+  color: white;
+  letter-spacing: 1px;
+  margin-bottom: 0;
+}
+select {
+  height: 30px;
+}
+h3 span.increase {
+  color: green;
 }
 
-.barchart.panel {
-  min-width: 490px;
-  width: 100%;
+h3 span.decrease {
+  color: red;
 }
-.barchart .loader {
-  text-align: center;
-  margin-top: 10%;
+
+.App {
+  display: flex;
+  justify-content: center;
+  height:100%;
 }
-.barchart .loader > div {
-  margin: 0 auto;
+
+.App > div {
+  display: flex;
+  -ms-flex-pack: center;
+  /* justify-content: center; */
+  flex-direction: column;
+  /* height: 100%; */
+  justify-content: center;
+  /* align-content: center; */
 }
-.barchart label.pt-label {
-  margin: 1 0 20px;
-  widtH: 50%;
-  padding-right: 5px;
-  display: inline-block;
-  text-align: left;
-  font-weight: 400;
-  color: white;
-  margin-bottom: 10px;
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+
+
+body {
+  height: 100%;
 }
-@media only screen and (max-width: 600px) {
-  .barchart label.pt-label {
-    width: 100%;
-  }
-}
-@media only screen and (max-width: 600px) {
-  .barchart.panel {
-    padding: 15px;
-  }
+
+#root {
+  height: 100%;
 }

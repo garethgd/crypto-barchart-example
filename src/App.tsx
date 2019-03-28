@@ -10,6 +10,7 @@ export type State = {
   data: any;
   selectedCoin: CoinInfo | undefined;
   selectedCoinPrice: string;
+  priceIncrease: boolean;
   selectedCoinSymbol: string
 };
 
@@ -24,6 +25,7 @@ class App extends React.Component<Props, State> {
     this.state = {
       data: [],
       selectedCoinSymbol: 'BTC',
+      priceIncrease: false,
       selectedCoin: undefined,
       selectedCoinPrice: '',
       coinTypes: [],
@@ -32,19 +34,20 @@ class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if(this.eventSource)
-    this.eventSource.onmessage = e =>
-      this.updateCoins(JSON.parse(e.data));
+
+  
+    
   }
 
-  updateCoins(coins: any) {
-   let coinsArray: CoinInfo[] = [];
+  componentWillUnmount() {
+    // if(this.eventSource)
+    // this.eventSource.close();
+  
+  }
 
-    Object.keys(coins.Data).forEach(function(key) {
-      coinsArray.push(coins.Data[key]);
-    });
-    
-    this.setState(Object.assign({}, { data: coinsArray }));
+  updateCoins(prices: any) {
+   this.getPriceChange(prices.EUR)
+   this.setState(Object.assign({}, { selectedCoinPrice: prices.EUR }));
   }
 
   componentWillMount() {
@@ -92,7 +95,8 @@ class App extends React.Component<Props, State> {
         const bitcoin = coins.find(coin => coin.Symbol === this.state.selectedCoinSymbol);
 
         this.eventSource = new EventSource(`http://localhost:5000/coins?coin=${this.state.selectedCoinSymbol}`);
-        
+        this.eventSource.onmessage = e =>
+      this.updateCoins(JSON.parse(e.data));
 
         if(bitcoin)
         this.getCoinCompare(bitcoin.Symbol);
@@ -106,11 +110,21 @@ class App extends React.Component<Props, State> {
 
   onSymChange(e: React.ChangeEvent<HTMLSelectElement>) {
     this.getCoinCompare(e.target.value);
+    if(this.eventSource)
+    this.eventSource.close();
+  }
+
+  getPriceChange(price: any) {
+    const { selectedCoinPrice } = this.state;
+    let priceIncreased: boolean = false;
+    price > selectedCoinPrice ? priceIncreased = true : priceIncreased = false;
+
+    this.setState({ priceIncrease: priceIncreased })
   }
 
 
   public render() {
-    const { selectedCoinPrice, coinTypes, loading, selectedCoinSymbol } = this.state;
+    const { selectedCoinPrice, coinTypes, loading, selectedCoinSymbol, priceIncrease } = this.state;
    
     return (
       <div className="App">
@@ -121,7 +135,7 @@ class App extends React.Component<Props, State> {
         ) : (
         <div className="">
           <h2> {selectedCoinSymbol ? selectedCoinSymbol: null } Price</h2>
-           <h3 style={{color: 'white'}}>EUR: {selectedCoinPrice ? selectedCoinPrice : 'No Price' }</h3>
+           <h3 style={{color: 'white'}}>EUR: <span className={`${priceIncrease ? 'increase' : 'decrease'}`}>{selectedCoinPrice ? selectedCoinPrice : 'No Price' }</span></h3>
 
            <select
                   value={

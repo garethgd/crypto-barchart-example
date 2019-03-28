@@ -4,11 +4,11 @@ const http = require("http");
 const https = require("https");
 var url = require('url');
 
-async function getCoins(coin){
+ function getCoins(coin){
     
     return new Promise(function(resolve, reject) {
-        https.get(
-            `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`, (res) => {
+    https.get(
+        `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`, (res) => {
     const { statusCode } = res;
     const contentType = res.headers['content-type'];
     res.headers = {
@@ -68,14 +68,13 @@ http
             "Cache-Control": "no-cache",
             "Access-Control-Allow-Origin": "*"
           });
-
+        
         setInterval(() => {
-            const coins = getCoins(query).then(res => {
-                console.log('hup');
-                //Coin data check
-                response.write("event: flightStateUpdate\n");
+            response.write("\n\n");
+            getCoins(query).then(res => {
                 response.write(`data: ${JSON.stringify(res)}`);
                 response.write("\n\n");
+                console.log('check')
         })
            
           }, 10000);
