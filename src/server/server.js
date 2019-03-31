@@ -59,17 +59,17 @@ http
           });
         clearInterval(timer);
         timer = setInterval(() => {
+            response.write(`id: ${query}-${Math.random()}`);
             response.write("\n\n");
             getCoins(query).then(res => {
                 response.write(`data: ${JSON.stringify(res)}`);
                 response.write("\n\n");
-                console.log('check');
                 console.log(JSON.stringify(res));
         })
            
           }, 10000);
 
-      response.on('close', () => {
+response.on('close', () => {
     if (!response.finished) {
       console.log("CLOSED");
       clearInterval(timer);

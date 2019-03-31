@@ -109,14 +109,10 @@ class App extends React.Component<Props, State> {
 
   onSymChange(e: React.ChangeEvent<HTMLSelectElement>) {
     this.getCoinCompare(e.target.value);
-    if(this.eventSource) {
-    this.eventSource = new EventSource(`http://localhost:5000/coins?coin=${e.target.value}`);
-    this.eventSource.onmessage = e =>
-    this.updateCoins(JSON.parse(e.data));
-    }
+    this.startEventSource(e.target.value);
   }
 
-  getPriceChange(price: any) {
+  getPriceChange(price: string) {
     const { selectedCoinPrice } = this.state;
     let priceIncreased: boolean = false;
     price > selectedCoinPrice ? priceIncreased = true : priceIncreased = false;
