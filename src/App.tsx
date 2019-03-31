@@ -33,16 +33,20 @@ class App extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount() {
-
-  
-    
+  componentWillMount() {
+    this.getCoinTypes();
+    this.getCoinCompare();
   }
 
   componentWillUnmount() {
-    // if(this.eventSource)
-    // this.eventSource.close();
-  
+     if(this.eventSource)
+     this.eventSource.close();
+  }
+
+  startEventSource(coinType: string) {
+    this.eventSource = new EventSource(`http://localhost:5000/coins?coin=${coinType}`);
+    this.eventSource.onmessage = e =>
+    this.updateCoins(JSON.parse(e.data));
   }
 
   updateCoins(prices: any) {
@@ -50,20 +54,18 @@ class App extends React.Component<Props, State> {
    this.setState(Object.assign({}, { selectedCoinPrice: prices.EUR }));
   }
 
-  componentWillMount() {
-    this.getCoinTypes();
-    this.getCoinCompare();
-  }
-
   private async getCoinCompare(coinType?: string) {
     if (coinType) this.setState({ loading: true });
 
-    let coinToCompare = coinType ? coinType : 'ETH';
+    let coinToCompare = coinType ? coinType : 'BTC';
+   
     const res = axios.get(
       `https://min-api.cryptocompare.com/data/price?fsym=${coinToCompare}&tsyms=${
         coinType ? coinType + ',' : ','
       }USD,EUR`
     );
+
+    this.startEventSource(coinToCompare);
 
     const response = await res;
 
@@ -79,6 +81,7 @@ class App extends React.Component<Props, State> {
 
   private getCoinTypes() {
     let coins: CoinInfo[] = [];
+
     axios
       .get(
         'https://rocky-bayou-96357.herokuapp.com/https://www.cryptocompare.com/api/data/coinlist/'
@@ -92,17 +95,13 @@ class App extends React.Component<Props, State> {
           a.CoinName.toUpperCase().localeCompare(b.CoinName.toUpperCase())
         );
 
-        const bitcoin = coins.find(coin => coin.Symbol === this.state.selectedCoinSymbol);
+        const initialCoin = coins.find(coin => coin.Symbol === this.state.selectedCoinSymbol);
 
-        this.eventSource = new EventSource(`http://localhost:5000/coins?coin=${this.state.selectedCoinSymbol}`);
-        this.eventSource.onmessage = e =>
-      this.updateCoins(JSON.parse(e.data));
-
-        if(bitcoin)
-        this.getCoinCompare(bitcoin.Symbol);
+        if (initialCoin)
+        this.getCoinCompare(initialCoin.Symbol);
         this.setState({
           coinTypes: coins,
-          selectedCoin: bitcoin
+          selectedCoin: initialCoin
         });
       })
       .catch(function(error) {});
@@ -110,15 +109,17 @@ class App extends React.Component<Props, State> {
 
   onSymChange(e: React.ChangeEvent<HTMLSelectElement>) {
     this.getCoinCompare(e.target.value);
-    if(this.eventSource)
-    this.eventSource.close();
+    if(this.eventSource) {
+    this.eventSource = new EventSource(`http://localhost:5000/coins?coin=${e.target.value}`);
+    this.eventSource.onmessage = e =>
+    this.updateCoins(JSON.parse(e.data));
+    }
   }
 
   getPriceChange(price: any) {
     const { selectedCoinPrice } = this.state;
     let priceIncreased: boolean = false;
     price > selectedCoinPrice ? priceIncreased = true : priceIncreased = false;
-
     this.setState({ priceIncrease: priceIncreased })
   }
 
@@ -135,8 +136,10 @@ class App extends React.Component<Props, State> {
         ) : (
         <div className="">
           <h2> {selectedCoinSymbol ? selectedCoinSymbol: null } Price</h2>
-           <h3 style={{color: 'white'}}>EUR: <span className={`${priceIncrease ? 'increase' : 'decrease'}`}>{selectedCoinPrice ? selectedCoinPrice : 'No Price' }</span></h3>
-
+           <h3 style={{color: 'white'}}>EUR: 
+           <span className={`${priceIncrease ? 'increase' : 'decrease'}`}>  {priceIncrease ? '↑' : '↓'} {selectedCoinPrice ? selectedCoinPrice : 'No Price' } </span>
+           </h3>
+    
            <select
                   value={
                     selectedCoinSymbol

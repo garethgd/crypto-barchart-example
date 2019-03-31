@@ -3,20 +3,15 @@
 const http = require("http");
 const https = require("https");
 var url = require('url');
+let timer;
 
  function getCoins(coin){
-    
     return new Promise(function(resolve, reject) {
-    https.get(
-        `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`, (res) => {
+        https.get(
+            `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`, (res) => {
     const { statusCode } = res;
     const contentType = res.headers['content-type'];
-    res.headers = {
-        "Content-Type": "text/event-stream",
-         Connection: "keep-alive",
-        "Cache-Control": "no-cache",
-        "Access-Control-Allow-Origin": "*"
-    }
+
     let error;
     if (statusCode !== 200) {
       error = new Error('Request Failed.\n' +
@@ -27,7 +22,6 @@ var url = require('url');
     }
     if (error) {
       console.error(error.message);
-      // Consume response data to free up memory
       res.resume();
       return;
     }
@@ -36,8 +30,7 @@ var url = require('url');
     let rawData = '';
     res.on('data', (chunk) => { rawData += chunk; });
     res.on('end', () => {
-      try {
-          
+      try { 
         const parsedData = JSON.parse(rawData);
         //console.log(parsedData);
         resolve(parsedData);
@@ -46,13 +39,9 @@ var url = require('url');
       }
     });
   }).on('error', (e) => {
-    console.error(`Got error: ${e.message}`);
+    console.error(`Received error: ${e.message}`);
   });
-        });
-        // on request error, reject
-        // if there's post data, write it to the request
-        // important: end the request req.end()
-
+     });
 } 
 
 http
@@ -68,17 +57,25 @@ http
             "Cache-Control": "no-cache",
             "Access-Control-Allow-Origin": "*"
           });
-        
-        setInterval(() => {
+        clearInterval(timer);
+        timer = setInterval(() => {
             response.write("\n\n");
             getCoins(query).then(res => {
                 response.write(`data: ${JSON.stringify(res)}`);
                 response.write("\n\n");
-                console.log('check')
+                console.log('check');
+                console.log(JSON.stringify(res));
         })
            
           }, 10000);
-     
+
+      response.on('close', () => {
+    if (!response.finished) {
+      console.log("CLOSED");
+      clearInterval(timer);
+      response.writeHead(404);
+    }
+  });
 
     } else {
       response.writeHead(404);
