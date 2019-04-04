@@ -21,7 +21,7 @@
 
   },
   "scripts": {
-    "start": "react-scripts-ts start",
+    "start": "react-scripts-ts start & node server.js",
     "build-css": "node-sass --include-path scss src/index.scss",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
